@@ -1,7 +1,6 @@
-package com.prs.controllers;
+package com.bmdb.controller;
 
 import java.util.List;
-
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,60 +16,61 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.prs.db.VendorRepo;
-import com.prs.model.Vendor;
+import com.bmdb.db.CreditRepo;
+import com.bmdb.model.Credit;
+
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/vendors")
-public class VendorController {
+@RequestMapping("api/credits")
+public class CreditController {
 	
-	@Autowired VendorRepo vendorRepo;
-
+	@Autowired
+	private CreditRepo creditRepo;
+	
 	@GetMapping("/")
-	public List<Vendor> getAll() {
-        return vendorRepo.findAll();
-    }
+	public List<Credit> getAllCredits() {
+		return creditRepo.findAll();
+	}
 	
 	@GetMapping("/{id}")
-	public Optional<Vendor> getById(@PathVariable int id) {
-		Optional<Vendor> v = vendorRepo.findById(id);
-		if (v.isPresent()) {
-			return v;
+	public Optional<Credit> getById(@PathVariable int id) {
+		Optional<Credit> c = creditRepo.findById(id);
+		if (c.isPresent()) {
+			return c;
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Vendor not found for id "+id);
+					HttpStatus.NOT_FOUND, "Credit not found for id "+id);
 		}
 	}
 	@PostMapping("")
-	public Vendor add(@RequestBody Vendor vendor) {
-		return vendorRepo.save(vendor);
+	public Credit add(@RequestBody Credit credit) {
+		return creditRepo.save(credit);
 	}
 	
 	@PutMapping("/{id}")
-	public void putVendor(@PathVariable int id, @RequestBody Vendor vendor) {
-		if (id != vendor.getId()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendor id mismatch vs URL.");
+	public void putCredit(@PathVariable int id, @RequestBody Credit credit) {
+		if (id != credit.getId()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credit id mismatch vs URL.");
 		}
-		else if (vendorRepo.existsById(vendor.getId())) {
-			vendorRepo.save(vendor);
+		else if (creditRepo.existsById(credit.getId())) {
+			creditRepo.save(credit);
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Vendor not found for id "+id);
+					HttpStatus.NOT_FOUND, "Credit not found for id "+id);
 		}
 	}
 	
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable int id) {
-		if (vendorRepo.existsById(id)) {
-			vendorRepo.deleteById(id);
+		if (creditRepo.existsById(id)) {
+			creditRepo.deleteById(id);
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Vendor not found for id "+id);
+					HttpStatus.NOT_FOUND, "Credit not found for id "+id);
 		}
 	}
-	
 }

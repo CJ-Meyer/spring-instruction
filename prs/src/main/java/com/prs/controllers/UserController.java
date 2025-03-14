@@ -1,6 +1,7 @@
 package com.prs.controllers;
 
 import java.util.List;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.prs.db.UserRepo;
-import com.prs.db.VendorRepo;
 import com.prs.model.User;
-import com.prs.model.Vendor;
 
 @CrossOrigin
 @RestController
@@ -51,14 +50,14 @@ public class UserController {
 	@PutMapping("/{id}")
 	public void putVendor(@PathVariable int id, @RequestBody User user) {
 		if (id != user.getId()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendor id mismatch vs URL.");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User id mismatch vs URL.");
 		}
 		else if (userRepo.existsById(user.getId())) {
 			userRepo.save(user);
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Vendor not found for id "+id);
+					HttpStatus.NOT_FOUND, "User not found for id "+id);
 		}
 	}
 	
@@ -69,7 +68,7 @@ public class UserController {
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Vendor not found for id "+id);
+					HttpStatus.NOT_FOUND, "User not found for id "+id);
 		}
 	}
 }

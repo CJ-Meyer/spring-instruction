@@ -65,6 +65,9 @@ public class MovieController {
 					HttpStatus.NOT_FOUND, "Movie not found for id "+id);
 		}
 	}
-	
+	@GetMapping("/rating/{rating}")
+	public List<Movie> getMoviesForRating(@PathVariable String rating){
+		return movieRepo.findByRating(rating);
+	}
 
 }
