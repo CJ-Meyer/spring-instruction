@@ -71,4 +71,15 @@ public class UserController {
 					HttpStatus.NOT_FOUND, "User not found for id "+id);
 		}
 	}
+	@PostMapping("/login")
+	public User login(@RequestBody User user) {
+		Optional<User> u = userRepo.findByUsernameAndPassword(user.getUsername(), user.getPassword());
+		if (u.isPresent()) {
+			return u.get();
+		} else {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+					"User not found for username " + user.getUsername());
+		}
+	}
+	
 }

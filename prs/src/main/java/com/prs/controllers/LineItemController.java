@@ -1,6 +1,7 @@
 package com.prs.controllers;
 
 import java.util.List;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +25,16 @@ import com.prs.model.Product;
 import com.prs.model.Request;
 import com.prs.model.User;
 
+import jakarta.transaction.Transactional;
+
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/lineitems")
 public class LineItemController {
 	@Autowired LineItemRepo lineItemRepo;
 	@Autowired RequestRepo requestRepo;
-	@Autowired ProductRepo productRepo;
-
+	
 	@GetMapping("/")
 	public List<LineItem> getAll() {
         return lineItemRepo.findAll();
@@ -49,13 +52,10 @@ public class LineItemController {
 		}
 	}
 	@PostMapping("")
-	public LineItem add(@RequestBody LineItem LI, Product product, Request request) {
-		Optional<Product> p = productRepo.findById(product.getId());
-		Optional<Request> r = requestRepo.findById(request.getId());
-		LI.setProduct(p.get());
-		LI.setRequest(r.get());
+	public LineItem add(@RequestBody LineItem LI) {
 		return lineItemRepo.save(LI);
 	}
+		
 	
 	@PutMapping("/{id}")
 	public void putVendor(@PathVariable int id, @RequestBody LineItem lineItem) {
@@ -81,4 +81,33 @@ public class LineItemController {
 					HttpStatus.NOT_FOUND, "LineItem not found for id "+id);
 		}
 	}
+	
+	@GetMapping("lines-for-req/{id}")
+	public List<LineItem> getByRequestId(@PathVariable int id) {
+	    List<LineItem> lineItems = lineItemRepo.findByRequestId(id);
+
+	    if (lineItems.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No LineItems found for Request id " + id);
+	    }
+
+	    return lineItems;
+	}
+	@Transactional
+	private void updateRequestTotal(int requestId) {
+	    Optional<Request> requestOpt = requestRepo.findById(requestId);
+
+	    if (requestOpt.isPresent()) {
+	        Request request = requestOpt.get();
+
+	        // Calculate total using the custom query
+	        Double total = lineItemRepo.calculateTotalForRequest(requestId);
+
+	        // Set total (if null, default to 0.0)
+	        request.setTotal(total != null ? total : 0.0);
+
+	        // Save updated request
+	        requestRepo.save(request);
+	    }
+	}
+
 }

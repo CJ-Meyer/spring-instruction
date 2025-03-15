@@ -8,4 +8,6 @@ import com.prs.model.Request;
 
 public interface RequestRepo extends JpaRepository<Request, Integer>{
 	Optional<Request> findTopByRequestNumberStartingWithOrderByRequestNumberDesc(String datePrefix);
+	Optional<Request> findById(int id);
+
 }

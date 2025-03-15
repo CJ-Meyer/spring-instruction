@@ -12,13 +12,12 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "UserID")
 	int id;
-	String userName;
+	String username;
 	String password;
 	String firstName;
 	String lastName;
 	String email;
-	@Column(name = "PhoneNumber")
-	String phone;
+	String phoneNumber;
 
 	public int getId() {
 		return id;
@@ -27,12 +26,15 @@ public class User {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getUserName() {
-		return userName;
+
+	public String getUsername() {
+		return username;
 	}
-	public void setUserName(String userName) {
-		this.userName = userName;
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
+	
 	public String getPassword() {
 		return password;
 	}
@@ -57,16 +59,20 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getPhone() {
-		return phone;
+	
+	
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
-	public void setPhone(String phone) {
-		this.phone = phone;
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
+
 	@Override
 	public String toString() {
-		return "User [userName=" + userName + ", password=" + password + ", firstName=" + firstName + ", lastName="
-				+ lastName + ", email=" + email + ", phone=" + phone + "]";
+		return "User [username=" + username + ", password=" + password + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", email=" + email + ", phoneNumber=" + phoneNumber + "]";
 	}
 	
 }
