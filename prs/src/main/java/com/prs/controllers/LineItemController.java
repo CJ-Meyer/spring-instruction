@@ -34,6 +34,7 @@ import jakarta.transaction.Transactional;
 public class LineItemController {
 	@Autowired LineItemRepo lineItemRepo;
 	@Autowired RequestRepo requestRepo;
+	@Autowired ProductRepo productRepo;
 	
 	@GetMapping("/")
 	public List<LineItem> getAll() {
@@ -53,7 +54,19 @@ public class LineItemController {
 	}
 	@PostMapping("")
 	public LineItem add(@RequestBody LineItem LI) {
+		Request request = requestRepo.findById(LI.getRequest()
+				.getId()).orElseThrow(() ->
+				new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found for id " + LI.getRequest().getId()));
+		
+				Product product = productRepo.findById(LI.getProduct().getId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found for id " + LI.getProduct().getId()));
+				
+				LI.setProduct(product);
+				LI.setRequest(request);
+				updateRequestTotal(request.getId());
 		return lineItemRepo.save(LI);
+		
+		
 	}
 		
 	
@@ -64,6 +77,7 @@ public class LineItemController {
 		}
 		else if (lineItemRepo.existsById(lineItem.getId())) {
 			lineItemRepo.save(lineItem);
+			updateRequestTotal(lineItem.getRequest().getId());
 		}
 		else {
 			throw new ResponseStatusException(
@@ -74,7 +88,10 @@ public class LineItemController {
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable int id) {
 		if (lineItemRepo.existsById(id)) {
+			Optional<LineItem> r = lineItemRepo.findById(id);
+			int requestId = r.get().getRequest().getId();
 			lineItemRepo.deleteById(id);
+			updateRequestTotal(requestId);
 		}
 		else {
 			throw new ResponseStatusException(
@@ -94,10 +111,10 @@ public class LineItemController {
 	}
 	@Transactional
 	private void updateRequestTotal(int requestId) {
-	    Optional<Request> requestOpt = requestRepo.findById(requestId);
+	    Optional<Request> r = requestRepo.findById(requestId);
 
-	    if (requestOpt.isPresent()) {
-	        Request request = requestOpt.get();
+	    if (r.isPresent()) {
+	        Request request = r.get();
 
 	        // Calculate total using the custom query
 	        Double total = lineItemRepo.calculateTotalForRequest(requestId);

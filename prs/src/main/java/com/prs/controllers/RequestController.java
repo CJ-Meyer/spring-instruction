@@ -25,6 +25,8 @@ import com.prs.model.Request;
 import com.prs.model.RequestCreateDTO;
 import com.prs.model.User;
 
+import ch.qos.logback.core.joran.conditional.IfAction;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/requests")
@@ -45,7 +47,7 @@ public class RequestController {
 			}
 			else {
 				throw new ResponseStatusException(
-						HttpStatus.NOT_FOUND, "Request not found for id "+id);
+						HttpStatus.NOT_FOUND, "No Request for ID:  "+id);
 			}
 		}
 		@PostMapping("")
@@ -66,14 +68,14 @@ public class RequestController {
 		@PutMapping("/{id}")
 		public void update(@PathVariable int id, @RequestBody Request request) {
 			if (id != request.getId()) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request id mismatch vs URL.");
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request ID DOES NOT MATCH URL.");
 			}
 			else if (requestRepo.existsById(request.getId())) {
 				requestRepo.save(request);
 			}
 			else {
 				throw new ResponseStatusException(
-						HttpStatus.NOT_FOUND, "Request not found for id "+id);
+						HttpStatus.NOT_FOUND, "Request DOES NOT MATCH ID "+id);
 			}
 		}
 		
@@ -84,24 +86,56 @@ public class RequestController {
 			}
 			else {
 				throw new ResponseStatusException(
-						HttpStatus.NOT_FOUND, "Request not found for id "+id);
+						HttpStatus.NOT_FOUND, "Request DOES NOT MATCH ID "+id);
 			}
 		}
+		@GetMapping("/list-review/{userId}")
+		public List<Request> getAllForReview(@PathVariable int userId) {
+		    // 🔍 Find all "REVIEW" requests NOT created by the given user
+		    List<Request> requests = requestRepo.findAllByStatusAndUserIdNot("REVIEW", userId);
+
+		    if (requests.isEmpty()) {
+		        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Requests for review.");
+		    }
+
+		    return requests;
+		}
+
+		
+		
+		@PostMapping("submit-review/{id}")
+		public Request submitForReview(@PathVariable int id) {
+			
+		    
+		    Request request = requestRepo.findById(id)
+		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request DOES NOT MATCH ID: " + id));
+
+		    
+		    if (request.getTotal() < 50) {
+		        request.setStatus("APPROVED"); 
+		    } else {
+		        request.setStatus("REVIEW"); 
+		    }
+
+		    return requestRepo.save(request);
+		}
+
+
 		private String generateRequestNumber() {
-	        // Get today's date as YYYYMMDD
+	        
 	        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-	        // Find the latest request that starts with today's date
+	        
 	        Optional<Request> lastRequest = requestRepo.findTopByRequestNumberStartingWithOrderByRequestNumberDesc(datePart);
 
-	        int newSequence = 1; // Default start number
+	        int newSequence = 1;
 	        if (lastRequest.isPresent()) {
 	            String lastRequestNumber = String.valueOf(lastRequest.get().getRequestNumber());
-	            int lastSequence = Integer.parseInt(lastRequestNumber.substring(8)); // Extract last 4 digits
+	            int lastSequence = Integer.parseInt(lastRequestNumber.substring(8));
 	            newSequence = lastSequence + 1;
 	        }
 
-	        // Format new sequence as a 4-digit number
+	        
 	        String sequencePart = String.format("%04d", newSequence);
 
 	        return datePart + sequencePart;
