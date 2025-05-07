@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.prs.db.RequestRepo;
 import com.prs.db.UserRepo;
+import com.prs.model.RejectDTO;
 import com.prs.model.Request;
 import com.prs.model.RequestCreateDTO;
 import com.prs.model.User;
@@ -50,21 +51,29 @@ public class RequestController {
 						HttpStatus.NOT_FOUND, "No Request for ID:  "+id);
 			}
 		}
+		
 		@PostMapping("")
 		public Request add(@RequestBody RequestCreateDTO rc) {
-			Request r = new Request();
-			Optional<User> u = userRepo.findById(rc.getUserId());
-			r.setStatus("NEW");
-			r.setSubmittedDate(LocalDateTime.now());
-			r.setTotal(0.0);
-			r.setRequestNumber(generateRequestNumber());
-			r.setDateNeeded(rc.getDateNeeded());
-			r.setDescription(rc.getDescription());
-			r.setJustification(rc.getJustification());
-			r.setDeliveryMode(rc.getDeliveryMode());
-			r.setUser(u.get());
-			return requestRepo.save(r);
+			System.out.println("post request: "+rc.toString());
+		    Request r = new Request();
+		    
+		    User user = userRepo.findById(rc.getUserId())
+		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+		    
+		    r.setStatus("NEW");
+		    r.setSubmittedDate(LocalDateTime.now());
+		    r.setTotal(0.0);
+		    r.setRequestNumber(generateRequestNumber());
+		    r.setDateNeeded(rc.getDateNeeded());
+		    r.setDescription(rc.getDescription());
+		    r.setJustification(rc.getJustification());
+		    r.setDeliveryMode(rc.getDeliveryMode());
+		    r.setUser(user);
+
+		    return requestRepo.save(r);
 		}
+
+		
 		@PutMapping("/{id}")
 		public void update(@PathVariable int id, @RequestBody Request request) {
 			if (id != request.getId()) {
@@ -91,7 +100,6 @@ public class RequestController {
 		}
 		@GetMapping("/list-review/{userId}")
 		public List<Request> getAllForReview(@PathVariable int userId) {
-		    // 🔍 Find all "REVIEW" requests NOT created by the given user
 		    List<Request> requests = requestRepo.findAllByStatusAndUserIdNot("REVIEW", userId);
 
 		    if (requests.isEmpty()) {
@@ -101,21 +109,43 @@ public class RequestController {
 		    return requests;
 		}
 
+		@PutMapping("/approve/{id}")
+		public Request ApproveForReview(@PathVariable int id) {
+		   Optional<Request> request = requestRepo.findById(id);
+		   Request r = request.get();
+		   r.setStatus("APPROVE");
+		   requestRepo.save(r);
+		   return r;
+		}
 		
-		
-		@PostMapping("submit-review/{id}")
-		public Request submitForReview(@PathVariable int id) {
+		@PutMapping("/reject/{id}")
+		public Request RejectForReview(@PathVariable int id, @RequestBody RejectDTO reject ) {
+			Optional<Request> request = requestRepo.findById(id);
+			Request r = request.get();
+			r.setStatus("REJECTED");
+			r.setReasonForRejection(reject.getReasonForRejection());
+			requestRepo.save(r);
+			return r;
+		}
+	
+		@GetMapping("/submit-review/{reqId}")
+		public Request submitForReview(@PathVariable int reqId) {
 			
-		    
-		    Request request = requestRepo.findById(id)
-		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request DOES NOT MATCH ID: " + id));
+		    System.out.println("In submit-review w/ id: "+reqId);
+		    Request request = requestRepo.findById(reqId)
+		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request DOES NOT MATCH ID: " + reqId));
 
-		    
+		    System.out.println("SUBMIT FOR REVIEW CALLED - ID: " + reqId);
+		    System.out.println("Current total: " + request.getTotal());
+		    System.out.println("Status before: " + request.getStatus());
+
 		    if (request.getTotal() < 50) {
-		        request.setStatus("APPROVED"); 
+		        request.setStatus("APPROVED");
 		    } else {
-		        request.setStatus("REVIEW"); 
+		        request.setStatus("REVIEW");
 		    }
+
+		    System.out.println("Status after: " + request.getStatus());
 
 		    return requestRepo.save(request);
 		}

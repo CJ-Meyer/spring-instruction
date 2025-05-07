@@ -23,10 +23,8 @@ import com.prs.db.RequestRepo;
 import com.prs.model.LineItem;
 import com.prs.model.Product;
 import com.prs.model.Request;
-import com.prs.model.User;
 
 import jakarta.transaction.Transactional;
-
 
 @CrossOrigin
 @RestController
@@ -49,22 +47,23 @@ public class LineItemController {
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Vendor not found for id "+id);
+					HttpStatus.NOT_FOUND, "LineItem NOT FOUND FOR id "+id);
 		}
 	}
 	@PostMapping("")
 	public LineItem add(@RequestBody LineItem LI) {
 		Request request = requestRepo.findById(LI.getRequest()
 				.getId()).orElseThrow(() ->
-				new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found for id " + LI.getRequest().getId()));
+				new ResponseStatusException(HttpStatus.NOT_FOUND, "Request NOT FOUND FOR id " + LI.getRequest().getId()));
 		
 				Product product = productRepo.findById(LI.getProduct().getId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found for id " + LI.getProduct().getId()));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Product NOT FOUND FOR id " + LI.getProduct().getId()));
 				
 				LI.setProduct(product);
 				LI.setRequest(request);
+				lineItemRepo.save(LI);
 				updateRequestTotal(request.getId());
-		return lineItemRepo.save(LI);
+				return LI;
 		
 		
 	}
@@ -73,7 +72,7 @@ public class LineItemController {
 	@PutMapping("/{id}")
 	public void putVendor(@PathVariable int id, @RequestBody LineItem lineItem) {
 		if (id != lineItem.getId()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "LineItem id mismatch vs URL.");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "LineItem id DOES NOT MATCH URL.");
 		}
 		else if (lineItemRepo.existsById(lineItem.getId())) {
 			lineItemRepo.save(lineItem);
@@ -81,7 +80,7 @@ public class LineItemController {
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "LineItem not found for id "+id);
+					HttpStatus.NOT_FOUND, "LineItem NOT FOUND FOR id "+id);
 		}
 	}
 	
@@ -95,36 +94,31 @@ public class LineItemController {
 		}
 		else {
 			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "LineItem not found for id "+id);
+					HttpStatus.NOT_FOUND, "LineItem NOT FOUND FOR id "+id);
 		}
 	}
 	
-	@GetMapping("lines-for-req/{id}")
+	@GetMapping("/lines-for-req/{id}")
 	public List<LineItem> getByRequestId(@PathVariable int id) {
-	    List<LineItem> lineItems = lineItemRepo.findByRequestId(id);
-
-	    if (lineItems.isEmpty()) {
-	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No LineItems found for Request id " + id);
-	    }
-
-	    return lineItems;
+		System.out.println("In LIC getByRequestId, id: "+id);
+		return lineItemRepo.findByRequestId(id); 
 	}
 	@Transactional
 	private void updateRequestTotal(int requestId) {
+	    System.out.println("Updating total for request ID: " + requestId);
+
 	    Optional<Request> r = requestRepo.findById(requestId);
 
 	    if (r.isPresent()) {
 	        Request request = r.get();
-
-	        // Calculate total using the custom query
-	        Double total = lineItemRepo.calculateTotalForRequest(requestId);
-
-	        // Set total (if null, default to 0.0)
+	        Double total = lineItemRepo.sumTotalForRequest(requestId);
 	        request.setTotal(total != null ? total : 0.0);
-
-	        // Save updated request
 	        requestRepo.save(request);
+	        System.out.println("Updated total for request ID: " + requestId + " in the database.");
+	    } else {
+	        System.out.println("Request ID " + requestId + " not found. No update performed.");
 	    }
 	}
+
 
 }

@@ -11,6 +11,6 @@ import com.prs.model.LineItem;
 public interface LineItemRepo extends JpaRepository<LineItem, Integer>{
 	List<LineItem> findByRequestId(int requestId);
 	@Query("SELECT SUM(li.quantity * p.price) FROM LineItem li JOIN li.product p WHERE li.request.id = :requestId AND li.product IS NOT NULL")
-	Double calculateTotalForRequest(@Param("requestId") int requestId);
+	Double sumTotalForRequest(@Param("requestId") int requestId);
 
 }

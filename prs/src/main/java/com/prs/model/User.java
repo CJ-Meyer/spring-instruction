@@ -18,6 +18,24 @@ public class User {
 	String lastName;
 	String email;
 	String phoneNumber;
+	Boolean Reviewer;
+	Boolean Admin;
+	
+	public Boolean getIsAdmin() {
+		return Admin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.Admin = isAdmin;
+	}
+
+	public Boolean getIsReviewer() {
+		return Reviewer;
+	}
+
+	public void setIsReviewer(Boolean isReviewer) {
+		this.Reviewer = isReviewer;
+	}
 
 	public int getId() {
 		return id;
@@ -71,8 +89,9 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", password=" + password + ", firstName=" + firstName + ", lastName="
-				+ lastName + ", email=" + email + ", phoneNumber=" + phoneNumber + "]";
+		return "User [id=" + id + ", username=" + username + ", password=" + password + ", firstName=" + firstName
+				+ ", lastName=" + lastName + ", email=" + email + ", phoneNumber=" + phoneNumber + ", isAdmin="
+				+ Admin + ", isReviewer=" + Reviewer + "]";
 	}
 	
 }

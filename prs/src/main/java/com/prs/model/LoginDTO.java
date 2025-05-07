@@ -4,16 +4,13 @@ public class LoginDTO {
     private String username;
     private String password;
 
-    // Default constructor
     public LoginDTO() {}
-
-    // Parameterized constructor
+  
     public LoginDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }
-
-    // Getters and Setters
+    
     public String getUsername() {
         return username;
     }

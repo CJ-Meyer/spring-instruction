@@ -28,6 +28,7 @@ public class Request {
 	private String status;
 	private double total;
 	private LocalDateTime submittedDate;
+	private String reasonForRejection;
 	
 	
 	public Request() {
@@ -93,12 +94,17 @@ public class Request {
 	public void setTotal(double total) {
 		this.total = total;
 	}
-
+	public void setReasonForRejection(String reasonForRejection) {
+		this.reasonForRejection = reasonForRejection;
+	}
+	public String getReasonForRejection() {
+		return reasonForRejection;
+	}
 	@Override
 	public String toString() {
 		return "Request [id=" + id + ", user=" + user + ", requestNumber=" + requestNumber + ", description="
 				+ description + ", justification=" + justification + ", dateNeeded=" + dateNeeded + ", deliveryMode="
-				+ deliveryMode + ", status=" + status + ", total=" + total + ", submittedDate=" + submittedDate + "]";
+				+ deliveryMode + ", status=" + status + ", total=" + total + ", submittedDate=" + submittedDate +", reasonForRejection"+ reasonForRejection +"]";
 	}
 	
 }

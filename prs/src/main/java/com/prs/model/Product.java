@@ -16,8 +16,8 @@ public class Product {
 	@ManyToOne
 	@JoinColumn(name="VendorId")
 	private Vendor vendor;
-	private int partNumber;
-	private String productName;
+	private String partNumber;
+	private String name;
 	private double price;
 	private String unit;
 	private String photoPath;
@@ -38,17 +38,17 @@ public class Product {
 	public void setVendor(Vendor vendor) {
 		this.vendor = vendor;
 	}
-	public int getPartNumber() {
+	public String getPartNumber() {
 		return partNumber;
 	}
-	public void setPartNumber(int partNumber) {
+	public void setPartNumber(String partNumber) {
 		this.partNumber = partNumber;
 	}
-	public String getProductName() {
-		return productName;
+	public String getName() {
+		return name;
 	}
-	public void setProductName(String productName) {
-		this.productName = productName;
+	public void setName(String name) {
+		this.name = name;
 	}
 	public double getPrice() {
 		return price;
@@ -70,8 +70,8 @@ public class Product {
 	}
 	@Override
 	public String toString() {
-		return "Product [id=" + id + ", vendor=" + vendor + ", partNumber=" + partNumber + ", productName="
-				+ productName + ", price=" + price + ", unit=" + unit + ", photoPath=" + photoPath + "]";
+		return "Product [id=" + id + ", vendor=" + vendor + ", partNumber=" + partNumber + ", name="
+				+ name + ", price=" + price + ", unit=" + unit + ", photoPath=" + photoPath + "]";
 	}
 	
 }

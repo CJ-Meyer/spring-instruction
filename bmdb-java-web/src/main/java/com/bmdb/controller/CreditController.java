@@ -73,4 +73,9 @@ public class CreditController {
 					HttpStatus.NOT_FOUND, "Credit not found for id "+id);
 		}
 	}
+	
+	@GetMapping("/movie-credits/{movieId}")
+	public List<Credit> getCreditsForMovie(@PathVariable int movieId) {
+		return creditRepo.findAllByMovieId(movieId);
+	}
 }
